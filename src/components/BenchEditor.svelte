@@ -52,12 +52,12 @@
 <style lang="scss">
   .editor-container {
     display: grid;
-    grid-template-rows: repeat(2, 200px);
+    grid-template-rows: 200px 250px;
     gap: 0.25rem;
 
     @media screen and (min-width: 1000px) {
       grid-template-columns: 3fr 1fr;
-      grid-template-rows: repeat(2, 300px);
+      grid-template-rows: 300px;
     }
   }
 </style>
