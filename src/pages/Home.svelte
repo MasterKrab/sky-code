@@ -1,17 +1,8 @@
 <script lang="ts">
   import HeadTitle from "components/HeadTitle.svelte";
-  import Styles from "components/Styles.svelte";
 </script>
 
 <HeadTitle text="Home" />
-
-<Styles
-  css={`
-   body{
-      background-color: var(--primary-color);
-   }
-`}
-/>
 
 <div class="container">
   <h1 class="title">The simplest way to test your javascript</h1>
