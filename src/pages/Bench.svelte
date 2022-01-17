@@ -157,12 +157,7 @@
   .editors {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 200px;
     align-items: start;
     gap: 0.5rem;
-
-    @media screen and (min-width: 1000px) {
-      grid-template-rows: 300px;
-    }
   }
 </style>
