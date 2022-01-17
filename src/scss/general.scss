@@ -1,0 +1,183 @@
+@use "scrollbar";
+
+:root {
+  --primary-font: "Poppins", sans-serif;
+
+  --separation: min(1rem, 3vw);
+
+  --primary-color: #292d3e;
+  --secondary-color: #44475a;
+  --scrollbar-color: #5e6069;
+  --no-active-color: #5d5f66;
+  --no-active-color-light: #b3b8c3;
+  --active-color: #4169e1;
+  --active-color-light: #7cb8f0;
+  --success-color: #00bc7d;
+  --danger-color: #e65654;
+  --white: #eee;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  font-family: var(--primary-font);
+  min-height: 100vh;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--primary-font);
+  color: inherit;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+body,
+.scrollbar {
+  @extend %scrollbar;
+}
+
+body::-webkit-scrollbar {
+  width: 0.75rem;
+}
+
+.left-bar {
+  @extend %scrollbar;
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  padding: 0.5rem;
+
+  @media screen and (max-width: 650px) {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  @media screen and (min-width: 650px) {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0;
+    overflow: visible;
+  }
+}
+
+.left-bar-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 2rem;
+
+  @media screen and (min-width: 650px) {
+    &::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      z-index: 100;
+      background-color: var(--secondary-color);
+      width: max-content;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      transform: translate(50%, 30%) scale(0);
+      transition: transform 0.2s;
+    }
+
+    @media (hover: hover) {
+      &:hover::after {
+        transform: translate(110%, 70%) scale(1);
+      }
+    }
+
+    &:focus::after {
+      transform: translate(110%, 70%) scale(1);
+    }
+  }
+}
+
+.reset-list {
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 0;
+}
+
+.checkbox {
+  position: relative;
+  appearance: none;
+  background-color: var(--no-active-color);
+  width: 3.5em;
+  height: 1.5em;
+  border-radius: 1em;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 1em;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  &:checked {
+    background-color: var(--active-color);
+
+    &::before {
+      transform: translateX(2em);
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--no-active-color-light);
+    }
+
+    &:checked:hover {
+      background-color: var(--active-color-light);
+    }
+  }
+}
+
+.input-range {
+  &,
+  &::-webkit-slider-thumb {
+    appearance: none;
+    background-color: var(--white);
+  }
+
+  height: 0.5em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  border-radius: 0.5em;
+
+  &::-webkit-slider-thumb {
+    width: 1.15em;
+    height: 1.15em;
+    border-radius: 50%;
+  }
+}
