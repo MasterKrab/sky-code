@@ -1,11 +1,7 @@
 import type monaco from "monaco-editor";
 
 export const typescriptPrettier = (prettierOptions: any = {}) => ({
-  async provideDocumentFormattingEdits(
-    model: monaco.editor.ITextModel
-    // options: monaco.languages.FormattingOptions,
-    // token: monaco.CancellationToken
-  ) {
+  async provideDocumentFormattingEdits(model: monaco.editor.ITextModel) {
     const prettier = await import("prettier/standalone");
     const typescript = await import("prettier/parser-typescript");
     const text = prettier.format(model.getValue(), {
