@@ -21,6 +21,8 @@
   export let tabSize = 4;
   export let semi = true;
   export let singleQuote = true;
+  export let semanticValidation = true;
+  export let syntaxValidation = true;
 
   let ctrlKey = false;
 
@@ -46,18 +48,19 @@
   };
 
   //@ts-ignore
-  window.MonacoEnvironment = {
+  self.MonacoEnvironment = {
     getWorker(_: any, label: string) {
       if (label === "typescript" || label === "javascript")
         return new tsWorker();
 
       return new editorWorker();
     },
+    globalApi: false,
   };
 
   monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-    noSemanticValidation: false,
-    noSyntaxValidation: false,
+    noSemanticValidation: !semanticValidation,
+    noSyntaxValidation: !syntaxValidation,
   });
 
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
@@ -77,10 +80,10 @@
 
     editor = monaco.editor.create(element, {
       ...monacoOptions,
-      fontSize,
       ariaLabel,
+      fontSize,
       tabSize,
-
+      value: code,
       lineNumbers: getOnOff(showLineNumbers),
       wordWrap: getOnOff(lineWrapping),
     });

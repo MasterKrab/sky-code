@@ -1,7 +1,10 @@
 <script lang="ts">
   import apiCall from "utils/apiCall";
+  import { getError } from "utils/error";
   import HeadTitle from "components/HeadTitle.svelte";
   import Spinner from "components/Spinner.svelte";
+  import ErrorModal from "components/ErrorModal.svelte";
+  import FullscreenButton from "components/FullscreenButton.svelte";
   import Button from "components/Button.svelte";
   import BenchmarkSettings from "components/BenchmarkSettings.svelte";
   import BenchTop from "components/BenchTop.svelte";
@@ -17,6 +20,8 @@
     tests?: number;
   }
 
+  let container: HTMLElement;
+
   let title = "Benchmark";
   let setupCode = "";
   let editors: Editor[] = [];
@@ -26,6 +31,9 @@
   let slowest: number;
 
   let isLoading = false;
+  let outputError: string | null = null;
+
+  const catchCallback = (error: any) => (outputError = getError(error));
 
   const finallyCallback = () => (isLoading = false);
 
@@ -60,9 +68,11 @@
       setupCode,
     })
       .then((output) => {
+        outputError = null;
         mutateEditors(index, () => ({ tests: actualTests, output }));
         calculateFastestAndSlowest();
       })
+      .catch(catchCallback)
       .finally(finallyCallback);
   };
 
@@ -75,7 +85,7 @@
 
     apiCall<number[]>("test-many", { tests: actualTests, codes, setupCode })
       .then((result) => {
-        console.log(result);
+        outputError = null;
 
         editors = editors.map((editor, index) => ({
           ...editor,
@@ -85,6 +95,7 @@
 
         calculateFastestAndSlowest();
       })
+      .catch(catchCallback)
       .finally(finallyCallback);
   };
 
@@ -105,8 +116,11 @@
 
 <HeadTitle text="Benchmark" />
 
+<ErrorModal bind:error={outputError} />
+
 <div class="left-bar">
   <BenchmarkSettings bind:tests />
+  <FullscreenButton element={container?.parentElement} />
   <Button
     label="Run all tests"
     icon={chevronRightIcon}
@@ -124,7 +138,7 @@
   <Spinner />
 {/if}
 
-<div class="principal scrollbar">
+<div class="principal scrollbar" bind:this={container}>
   <BenchTop
     bind:title
     bind:setupCode

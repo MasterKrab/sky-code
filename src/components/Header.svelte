@@ -6,9 +6,11 @@
 <header class="header">
   <nav class="navigation">
     <ul class="menu reset-list">
-      {#each routes as { href, label }}
+      {#each routes as { href, label, icon }}
         <li class="menu__list">
-          <a class="menu__link" {href} use:link>{label}</a>
+          <a class="menu__link" {href} aria-label={label} use:link>
+            {icon || label}
+          </a>
         </li>
       {/each}
     </ul>

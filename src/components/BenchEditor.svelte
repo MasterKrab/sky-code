@@ -26,6 +26,7 @@
 <div class="editor-container" transition:slide|local={{ duration: 200 }}>
   <Editor
     ariaLabel="Editor for test {title}"
+    syntaxValidation={false}
     bind:code
     bind:fontSize
     bind:minFontSize

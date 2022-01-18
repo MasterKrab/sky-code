@@ -1,5 +1,5 @@
 const routes = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "Home", icon: "🚀" },
   { href: "/playground", label: "Playground" },
   { href: "/bench", label: "Bench" },
 ];

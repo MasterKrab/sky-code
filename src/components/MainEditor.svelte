@@ -3,13 +3,19 @@
 
   let element: HTMLElement;
   let windowHeight: number;
+  let isFullScreen = !!document.fullscreenElement;
 
   const getTop = () => element.getBoundingClientRect().top;
+
+  const handleFullScreenChange = () =>
+    (isFullScreen = !!document.fullscreenElement);
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
 
-{#if windowHeight}
+<svelte:body on:fullscreenchange={handleFullScreenChange} />
+
+{#if !isFullScreen && windowHeight}
   <Styles
     css={`
       .main{
@@ -28,6 +34,7 @@
     display: grid;
     grid-template-columns: 100%;
     gap: 0.25rem;
+    background-color: var(--secondary-color);
 
     @media screen and (min-width: 1000px) {
       grid-template-columns: 50px 1fr;

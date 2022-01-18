@@ -1,7 +1,9 @@
 <script lang="ts">
   import apiCall from "utils/apiCall";
+  import { getError } from "utils/error";
   import HeadTitle from "components/HeadTitle.svelte";
   import Styles from "components/Styles.svelte";
+  import FullscreenButton from "components/FullscreenButton.svelte";
   import DownloadLink from "components/DownloadLink.svelte";
   import Editor from "components/Editor.svelte";
   import Output from "components/Output.svelte";
@@ -38,18 +40,10 @@
 
     apiCall("run", { code, typescript })
       .then((result) => {
-        console.log(result);
         outputError = null;
         output = result as any[];
       })
-      .catch(async (error) => {
-        console.log(error);
-        if (error.errors) {
-          outputError = error.errors.join("\n");
-        } else {
-          outputError = error.message;
-        }
-      })
+      .catch(async (error) => (outputError = getError(error)))
       .finally(() => {
         isLoading = false;
       });
@@ -156,6 +150,7 @@
     bind:semi
     bind:singleQuote
   />
+  <FullscreenButton element={container?.parentElement} />
   <Button label="Run code" on:click={runCode} icon={chevronRightIcon} />
   <DownloadLink bind:code />
   <Button label="Format code" on:click={handleFormatCode} icon={formatIcon} />

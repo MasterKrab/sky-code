@@ -12,7 +12,13 @@
   aria-hidden={output === undefined}
 >
   {#if error}
-    {error}
+    {#each error.split("\n") as error, index}
+      {#if index > 0}
+        <br />
+      {/if}
+
+      {error}
+    {/each}
   {:else if consoleOutput && consoleOutput.length}
     <details class="output__console">
       <summary>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import Modal from "./Modal.svelte";
-  import cross from "assets/icons/cross.svg";
+  import ModalCloseButton from "./ModalCloseButton.svelte";
 
   export let openModal: boolean;
 
@@ -10,9 +10,7 @@
 <Modal bind:openModal>
   <div class="settings-modal">
     <h2 class="title">Settings</h2>
-    <button on:click={handleClickClose} class="close-modal">
-      <img src={cross} alt="Close Settings" />
-    </button>
+    <ModalCloseButton on:click={handleClickClose} label="Close Settings" />
     <ul class="options reset-list">
       <slot />
     </ul>
@@ -39,13 +37,6 @@
     text-align: left;
     margin-top: 0;
     margin-bottom: 0;
-  }
-
-  .close-modal {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.5rem;
   }
 
   .options {

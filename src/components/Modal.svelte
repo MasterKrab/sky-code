@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
   import focusableElements from "config/focusableElements";
+
+  const dispatch = createEventDispatcher();
 
   export let openModal: boolean;
 
@@ -9,7 +11,12 @@
   let firstFocus: HTMLElement;
   let lastFocus: HTMLElement;
 
-  const handleKeyDown = (e) => {
+  const closeModal = () => {
+    openModal = false;
+    dispatch("close");
+  };
+
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Tab") {
       const focus = document.activeElement;
 
@@ -17,18 +24,19 @@
         e.preventDefault();
         lastFocus.focus();
       } else if (focus === lastFocus && !e.shiftKey) {
+        console.log("last");
         e.preventDefault();
         firstFocus.focus();
       }
     } else if (e.key === "Escape") {
-      openModal = false;
+      closeModal();
     }
   };
 
   const handleClick = (e: Event) => {
     const target = e.target as HTMLElement;
 
-    if (target === parentNode) openModal = false;
+    if (target === parentNode) closeModal();
   };
 
   const onMount = () => {
@@ -38,7 +46,7 @@
     firstFocus = focusableElementsInNode[0] as HTMLElement;
 
     lastFocus = focusableElementsInNode[
-      focusableElements.length - 1
+      focusableElementsInNode.length - 1
     ] as HTMLElement;
 
     firstFocus?.focus();
