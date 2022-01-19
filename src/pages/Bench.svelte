@@ -4,7 +4,7 @@
   import HeadTitle from "components/HeadTitle.svelte";
   import Spinner from "components/Spinner.svelte";
   import ErrorModal from "components/ErrorModal.svelte";
-  import FullscreenButton from "components/FullscreenButton.svelte";
+  import FullscreenButton from "components/FullScreenButton.svelte";
   import Button from "components/Button.svelte";
   import BenchmarkSettings from "components/BenchmarkSettings.svelte";
   import BenchTop from "components/BenchTop.svelte";

@@ -3,7 +3,7 @@
   import { getError } from "utils/error";
   import HeadTitle from "components/HeadTitle.svelte";
   import Styles from "components/Styles.svelte";
-  import FullscreenButton from "components/FullscreenButton.svelte";
+  import FullscreenButton from "components/FullScreenButton.svelte";
   import DownloadLink from "components/DownloadLink.svelte";
   import Editor from "components/Editor.svelte";
   import Output from "components/Output.svelte";
