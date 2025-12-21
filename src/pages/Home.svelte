@@ -1,52 +1,251 @@
 <script lang="ts">
+  import { onDestroy, onMount } from "svelte";
   import HeadTitle from "components/HeadTitle.svelte";
+  import Styles from "components/Styles.svelte";
+  import FullscreenButton from "components/FullScreenButton.svelte";
+  import DownloadLink from "components/DownloadLink.svelte";
+  import Editor from "components/Editor.svelte";
+  import Output from "components/Output.svelte";
+  import PlaygroundSettings from "components/PlaygroundSettings.svelte";
+  import Spinner from "components/Spinner.svelte";
+  import Button from "components/Button.svelte";
+  import { decodeCode, createUrlUpdater } from "utils/url";
+  import getIsMobile from "utils/getIsMobile";
+  import { evaluateCode } from "utils/code";
+  import chevronRightIcon from "assets/icons/chevron-right.svg";
+  import formatIcon from "assets/icons/format.svg";
+  import type monaco from "monaco-editor";
+
+  let code = "";
+
+  let output: {
+    output: string;
+    rawValue: any;
+    hasResult: boolean;
+    console: any[];
+  }[] = [];
+
+  let outputError: string;
+
+  let isLoading = false;
+
+  let direction: "horizontal" | "vertical" = getIsMobile()
+    ? "vertical"
+    : "horizontal";
+
+  let fontSize = 20;
+  let minFontSize = 10;
+  let maxFontSize = 100;
+  let lineWrapping = true;
+  let showLineNumbers = false;
+  let tabSize = 4;
+  let semi = true;
+  let singleQuote = true;
+
+  onMount(() => {
+    const hash = window.location.hash.slice(1) || "";
+    const decoded = decodeCode(hash) || "";
+
+    code = decoded;
+
+    editor.setValue(code);
+    editor.focus();
+  });
+
+  let urlCodeUpdaterInstance = createUrlUpdater();
+
+  $: urlCodeUpdaterInstance.setValue(code);
+
+  onDestroy(urlCodeUpdaterInstance.kill);
+
+  const runCode = () => {
+    isLoading = false;
+    outputError = null;
+
+    try {
+      isLoading = true;
+      output = evaluateCode(code, (updatedOutput) => {
+        output = updatedOutput;
+      });
+      console.log(output);
+    } catch (error) {
+      console.error(error);
+      outputError = error?.message || String(error);
+    } finally {
+      isLoading = false;
+    }
+  };
+
+  $: if (code) runCode();
+
+  let editor: monaco.editor.IStandaloneCodeEditor;
+
+  const handleFormatCode = () =>
+    editor.getAction("editor.action.formatDocument").run();
+
+  let container: HTMLElement;
+  let editorSize: number;
+  let outputSize: number;
+  let resizing = false;
+
+  const handleMouseDown = () => (resizing = true);
+  const handleMouseUp = () => (resizing = false);
+
+  const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+    if (!resizing) return;
+    const key = direction === "horizontal" ? "pageX" : "pageY";
+    const dimension =
+      direction === "horizontal" ? "offsetWidth" : "offsetHeight";
+    const touches = (e as TouchEvent)?.touches;
+    const cordinate =
+      (e as MouseEvent)[key] ||
+      (touches && touches.length ? touches[0][key] : 0);
+    const difference =
+      document.documentElement[dimension] - container[dimension];
+    const normalizedCordinate = cordinate - difference;
+
+    if (
+      normalizedCordinate <= container[dimension] * 0.05 ||
+      normalizedCordinate >= container[dimension] * 0.95
+    )
+      return;
+
+    const size = container[dimension] - normalizedCordinate;
+    outputSize = size;
+    editorSize = container[dimension] - size;
+  };
+
+  const setSize = (size: number, fallback: string) =>
+    size ? `${size}px` : fallback;
+
+  const calculateDimensions = () => {
+    const dimension =
+      direction === "horizontal" ? "offsetWidth" : "offsetHeight";
+    editorSize = container[dimension] - outputSize;
+  };
+
+  const handleResize = () => {
+    if (!container) return;
+    if (getIsMobile()) direction = "vertical";
+    calculateDimensions();
+  };
+
+  $: container && direction && calculateDimensions();
 </script>
 
-<HeadTitle text="Home" />
+<HeadTitle text="Playground" />
 
-<div class="container">
-  <h1 class="title">The simplest way to test your javascript</h1>
+<Styles
+  css={`
+  .result{
+    font-size: ${fontSize}px;
+    line-height: 1.5; 
+  }  
+`}
+/>
 
-  <p class="text">Play and test your JavaScript or TypeScript code</p>
+<svelte:window on:resize={handleResize} />
 
-  <div class="rocket">🚀</div>
+<svelte:body
+  on:mousemove={handleMouseMove}
+  on:mouseup={handleMouseUp}
+  on:touchmove={handleMouseMove}
+  on:touchend={handleMouseUp}
+/>
+
+{#if isLoading}
+  <Spinner />
+{/if}
+
+<div class="left-bar">
+  <PlaygroundSettings
+    bind:direction
+    bind:fontSize
+    bind:minFontSize
+    bind:maxFontSize
+    bind:lineWrapping
+    bind:showLineNumbers
+    bind:tabSize
+    bind:semi
+    bind:singleQuote
+  />
+  <FullscreenButton element={container?.parentElement} />
+  <Button label="Run code" on:click={runCode} icon={chevronRightIcon} />
+  <DownloadLink bind:code />
+  <Button label="Format code" on:click={handleFormatCode} icon={formatIcon} />
+</div>
+
+<div
+  bind:this={container}
+  class="editor"
+  class:editor--vertical={direction !== "horizontal"}
+  style="--grid: {setSize(editorSize - 2.5, '2fr')} 5px {setSize(
+    outputSize - 2.5,
+    '1fr'
+  )};"
+>
+  <Editor
+    ariaLabel="Playground Editor"
+    bind:editor
+    bind:fontSize
+    bind:minFontSize
+    bind:maxFontSize
+    bind:lineWrapping
+    bind:showLineNumbers
+    bind:tabSize
+    bind:semi
+    bind:singleQuote
+    bind:code
+  />
+  <div
+    class="divider"
+    class:divider--vertical={direction !== "horizontal"}
+    on:mousedown={handleMouseDown}
+    on:touchstart={handleMouseDown}
+  />
+
+  <ul class="result scrollbar reset-list">
+    {#if outputError}
+      <Output error={outputError} />
+    {:else}
+      {#each output as { output, rawValue, hasResult, console }}
+        {#if direction !== "horizontal" && (hasResult || console?.length)}
+          <Output {output} {rawValue} {hasResult} consoleOutput={console} />
+        {/if}
+
+        {#if direction === "horizontal"}
+          <Output {output} {rawValue} {hasResult} consoleOutput={console} />
+        {/if}
+      {/each}
+    {/if}
+  </ul>
 </div>
 
 <style lang="scss">
-  .container {
-    text-align: center;
-    margin-top: 2rem;
-    padding: 1.5rem;
+  .editor {
+    display: grid;
+    grid-template-columns: var(--grid);
+    overflow: hidden;
 
-    @media screen and (min-width: 650px) {
-      grid-column: span 2;
+    &--vertical {
+      grid-template-columns: 1fr;
+      grid-template-rows: var(--grid);
     }
   }
 
-  .title {
-    font-size: min(3rem, 7.5vw);
-  }
+  .divider {
+    background-color: var(--secondary-color);
+    cursor: col-resize;
 
-  .text {
-    font-size: min(1.5rem, 4vw);
-  }
-
-  @keyframes levitate {
-    0% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(10px);
-    }
-    100% {
-      transform: translateY(0);
+    &--vertical {
+      cursor: row-resize;
     }
   }
 
-  .rocket {
-    margin-top: 5rem;
-    font-size: min(8rem, 20vw);
-    animation: levitate 2s infinite;
-    text-shadow: 0 0 10px #fff;
+  .result {
+    background-color: var(--primary-color);
+    font-family: monospace;
+    padding-left: 0.5rem;
+    overflow-y: auto;
   }
 </style>

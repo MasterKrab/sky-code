@@ -66,8 +66,8 @@
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
     target: monaco.languages.typescript.ScriptTarget.ESNext,
     allowNonTsExtensions: true,
-    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monaco.languages.typescript.ModuleKind.CommonJS,
+    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.ESNext,
+    module: monaco.languages.typescript.ModuleKind.ESNext,
     allowJs: true,
     typeRoots: ["node_modules/@types"],
   });

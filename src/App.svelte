@@ -5,7 +5,7 @@
   import MainEditor from "components/MainEditor.svelte";
   import Main from "components/Main.svelte";
   import Bench from "pages/Bench.svelte";
-  import Playground from "pages/Playground.svelte";
+  import Playground from "pages/Home.svelte";
   import Home from "pages/Home.svelte";
   import FloatingFocus from "components/FloatingFocus.svelte";
   import "./scss/normalize.scss";
@@ -15,30 +15,25 @@
   registerSW({ immediate: true });
 </script>
 
-<Header />
+<!-- <Header /> -->
 
-<Router>
-  <Route path="playground">
-    <MainEditor>
-      <Playground />
-    </MainEditor>
-  </Route>
+<!-- <Router>
   <Route path="bench">
     <MainEditor>
       <Bench />
     </MainEditor>
   </Route>
-  <Route path="/">
-    <Main>
-      <Home />
-    </Main>
-  </Route>
+  <Route path="/"> -->
+<MainEditor>
+  <Playground />
+</MainEditor>
+<!-- </Route>
   <Route>
     <Main>
       <h1>404</h1>
       <p>Page not found.</p>
     </Main>
   </Route>
-</Router>
+</Router> -->
 
 <FloatingFocus />
