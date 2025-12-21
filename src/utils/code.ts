@@ -2,8 +2,20 @@ import * as Babel from "@babel/standalone/babel.min.js";
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
-const formatValue = (value: any, depth = 0, seen = new WeakSet()): string => {
-  if (value === undefined) return "";
+const originalConsole = {
+  log: console.log,
+  error: console.error,
+  warn: console.warn,
+  info: console.info,
+};
+
+const formatValue = (
+  value: any,
+  depth = 0,
+  seen = new WeakSet(),
+  isConsole = false
+): string => {
+  if (value === undefined) return isConsole ? "undefined" : "";
   if (value === null) return "null";
   if (typeof value === "string") return `"${value}"`;
   if (typeof value === "number")
@@ -89,6 +101,20 @@ export const evaluateCode = (
   onUpdate?: (results: any[]) => void
 ) => {
   let executionResults: Record<number, any> = {};
+  let executionLogs: Record<number, string[]> = {};
+  let logBuffer: string[] = [];
+
+  const handleLog = (...args: any[]) => {
+    const formattedArgs = args
+      .map((arg) => formatValue(arg, 0, new WeakSet(), true))
+      .join(" ");
+    logBuffer.push(formattedArgs);
+  };
+
+  window.console.log = handleLog;
+  window.console.error = handleLog;
+  window.console.warn = handleLog;
+  window.console.info = handleLog;
 
   const generateOutput = () => {
     const codeLines = code.split("\n");
@@ -99,6 +125,7 @@ export const evaluateCode = (
         lineNumber
       );
       let value = hasResult ? executionResults[lineNumber] : undefined;
+      const logs = executionLogs[lineNumber] || [];
 
       let rawForTree = value;
 
@@ -115,7 +142,7 @@ export const evaluateCode = (
         output: hasResult ? formatValue(value) : undefined,
         rawValue: rawForTree,
         hasResult: hasResult,
-        console: [],
+        console: logs,
       };
     });
   };
@@ -124,6 +151,11 @@ export const evaluateCode = (
   if (typeof window !== "undefined") {
     // @ts-ignore
     window.__spy = (line: number, value: any) => {
+      if (logBuffer.length > 0) {
+        executionLogs[line] = (executionLogs[line] || []).concat(logBuffer);
+        logBuffer = [];
+      }
+
       if (value instanceof Promise) {
         executionResults[line] = { __isPromiseState: true, status: "pending" };
 
@@ -165,9 +197,13 @@ export const evaluateCode = (
     }).code;
 
     new AsyncFunction(transpiled)().catch((err: any) => {
-      console.error("Async Error:", err);
+      console.error("Runtime Error:", err);
     });
   } catch (error: any) {
+    window.console.log = originalConsole.log;
+    window.console.error = originalConsole.error;
+    window.console.warn = originalConsole.warn;
+    window.console.info = originalConsole.info;
     throw error;
   }
 

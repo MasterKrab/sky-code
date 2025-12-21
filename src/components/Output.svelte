@@ -35,7 +35,7 @@
 {:else}
   <li class="line-output">
     {#each consoleOutput as log}
-      <div class="console-log">LOG: {log}</div>
+      <div class="console-log">>: {log}</div>
     {/each}
 
     {#if hasResult}
