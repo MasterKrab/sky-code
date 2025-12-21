@@ -28,11 +28,10 @@
     "vite": "2.7.1",
     "vite-plugin-pwa": "0.11.13",
     "vite-tsconfig-paths": "3.3.17",
-    "workbox-precaching": "6.4.2"
-  },
-  "dependencies": {
+    "workbox-precaching": "6.4.2",
     "@babel/standalone": "7.28.5",
     "lz-string": "^1.5.0",
     "svelte-json-tree": "1.0.0"
-  }
+  },
+  "dependencies": {}
 }
