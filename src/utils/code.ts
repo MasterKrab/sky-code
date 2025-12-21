@@ -1,4 +1,4 @@
-import * as Babel from "@babel/standalone";
+import * as Babel from "@babel/standalone/babel.min.js";
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
